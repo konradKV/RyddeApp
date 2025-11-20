@@ -4,7 +4,7 @@ const app = express();
 const sqlite3 = require("sqlite3").verbose();
 let sql;
 
-// rot
+// grooooooooooooooooot
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
@@ -14,7 +14,7 @@ const db = new sqlite3.Database("./ryddeApp", sqlite3.OPEN_READWRITE, (err) => {
   if (err) return console.error(err.message);
 });
 
-// get request for getTasks i
+// get request for getTasks obviously
 app.get("/getTasks", (req, res) => {
   sql = "SELECT * FROM task";
   db.all(sql, [], (err, rows) => {
@@ -23,5 +23,5 @@ app.get("/getTasks", (req, res) => {
   });
 });
 
-// server listener på port 6767 (http://localhost:6767) -konrad
+// server listener på port 6767 (http://localhost:6767) - konrad
 app.listen(6767);
