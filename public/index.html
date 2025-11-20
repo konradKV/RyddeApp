@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Hei!!!</title>
+    </head>
+    <body>
+        <div id="utskrift"></div>
+    </body>
+</html>
+
+<script>
+    const utskrift = document.getElementById("utskrift");
+    async function displayTasks() {
+        const response = await fetch("/getTasks");
+        const tasks = await response.json();
+        utskrift.innerHTML = "";
+        for (let task of tasks) {
+            const diV = document.createElement("diV");
+            console.log(task);
+            diV.innerHTML = task.name + "<br>" + task.description + "<br>";
+            console.log(task.name);
+            utskrift.appendChild(diV);
+            console.log("append div :D hei koneradio");
+        }
+    }
+    displayTasks();
+</script>
