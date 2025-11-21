@@ -24,4 +24,6 @@ app.get("/getTasks", (req, res) => {
 });
 
 // server listener på port 6767 (http://localhost:6767) - konrad
+const port = "6767";
 app.listen(6767);
+console.log("yo, jeg kjører på http://localhost:" + port);
