@@ -5,25 +5,101 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Hei!!!</title>
         <link rel="stylesheet" href="styles/styling.css" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Jua&display=swap"
+            rel="stylesheet"
+        />
     </head>
     <body>
-        <div id="utskrift"></div>
+        <header>
+            <div class="KonradFREEheadTuff">
+                <h1>Daglig oppgaver</h1>
+
+                <!-- Only ONE buttonslayout -->
+                <div class="buttonslayout">
+                    <button>
+                        <img src="img/podium.png" alt="Leaderboard" />
+                    </button>
+                    <button><img src="img/task.png" alt="Tasks" /></button>
+                    <button><img src="img/home.png" alt="Home" /></button>
+                </div>
+            </div>
+        </header>
+        <div id="page-leaderboard" class="page">
+            <h2>Leaderboard</h2>
+            <p>Topplisten kommer her...</p>
+        </div>
+        <div id="page-tasks" class="page">
+            <div class="KONRADINSANEHEAD">
+                <h2>Oppgaver</h2>
+                <button>+ Oppgave</button>
+                <div id="utskrift"></div>
+            </div>
+        </div>
+
+        <div id="page-create" class="page">
+            <h2>Lag oppgave</h2>
+            <p>Her kan du lage en ny oppgave...</p>
+        </div>
+
+        <div id="page-home" class="page">
+            <h2>Min side</h2>
+            <p>Her kommer info om brukeren...</p>
+        </div>
     </body>
 </html>
 
 <script>
+    const buttons = document.querySelectorAll(".buttonslayout button");
+    const pages = document.querySelectorAll(".page");
+    //Denne delen rullerel mellom sider ved og bytte deres CSS stil fra .page og .page.active
+    function showPage(id, index) {
+        pages.forEach((p) => p.classList.remove("active"));
+        document.getElementById(id).classList.add("active");
+        buttons.forEach((b) => b.classList.remove("selected"));
+        buttons[index].classList.add("selected");
+    }
+    //Hører etter trykking av knapper
+    buttons[0].addEventListener("click", () => showPage("page-leaderboard", 0));
+    buttons[1].addEventListener("click", () => showPage("page-tasks", 1));
+    buttons[2].addEventListener("click", () => showPage("page-home", 2));
+
+    // Default side
+    showPage("page-tasks", 1);
+
+    function showPage(id, index) {
+        // Gjøm alle sider
+        pages.forEach((p) => p.classList.remove("active"));
+        document.getElementById(id).classList.add("active");
+
+        // Enkel Skript for og selecte knapper og vite hvilken side brukaren er på
+        buttons.forEach((b) => b.classList.remove("selected"));
+        buttons[index].classList.add("selected");
+    } //slutt på Frontend kode
+
     const utskrift = document.getElementById("utskrift");
     async function displayTasks() {
         const response = await fetch("/getTasks");
         const tasks = await response.json();
-        utskrift.innerHTML = "";
         for (let task of tasks) {
-            const diV = document.createElement("diV");
-            console.log(task);
-            diV.innerHTML = task.name + "<br>" + task.description + "<br>";
-            console.log(task.name);
-            utskrift.appendChild(diV);
-            console.log("append div :D hei koneradio");
+            const div = document.createElement("div");
+            const nameSpan = document.createElement("span");
+            const descrSpan = document.createElement("span");
+            const creatorSpan = document.createElement("span");
+            nameSpan.classList.add("task-name");
+            descrSpan.classList.add("task-description");
+            creatorSpan.classList.add("creator-name");
+
+            nameSpan.textContent = task.name;
+            descrSpan.textContent = task.description;
+            creatorSpan.textContent = "Laget av: " + task.creatorUser;
+            div.appendChild(nameSpan);
+            div.appendChild(document.createElement("br"));
+            div.appendChild(creatorSpan);
+            div.appendChild(document.createElement("br"));
+            div.appendChild(descrSpan);
+
+            utskrift.appendChild(div);
         }
     }
     displayTasks();

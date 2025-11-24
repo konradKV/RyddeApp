@@ -3,6 +3,7 @@ const express = require("express");
 const app = express();
 const sqlite3 = require("sqlite3").verbose();
 let sql;
+app.use(express.static("public"));
 
 // grooooooooooooooooot
 app.get("/", (req, res) => {
@@ -22,6 +23,7 @@ app.get("/getTasks", (req, res) => {
     res.json(rows);
   });
 });
+
 
 // server listener på port 6767 (http://localhost:6767) - konrad
 const port = "6767";
