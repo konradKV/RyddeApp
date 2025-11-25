@@ -31,7 +31,6 @@
         </div>
         <div id="page-tasks" class="page">
             <div class="KONRADINSANEHEAD">
-                <h2>Oppgaver</h2>
                 <button>+ Oppgave</button>
                 <div id="utskrift"></div>
             </div>
@@ -75,7 +74,7 @@
         // Enkel Skript for og selecte knapper og vite hvilken side brukaren er på
         buttons.forEach((b) => b.classList.remove("selected"));
         buttons[index].classList.add("selected");
-    } //slutt på Frontend kode
+    }
 
     const utskrift = document.getElementById("utskrift");
     async function displayTasks() {
