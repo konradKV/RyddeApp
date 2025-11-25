@@ -1,0 +1,140 @@
+header {
+    background-color: #42a9bb;
+    width: 100%;
+    border: 5px solid #000000;
+}
+
+body {
+    background-color: white;
+    margin: 0;
+    padding: 0;
+}
+
+.page {
+    display: none;
+}
+
+.page.active {
+    display: block;
+}
+
+#utskrift {
+    color: white;
+    padding: 10px 10px 10px 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    div {
+        padding: 15px;
+        margin-bottom: 25px;
+        border-radius: 20px;
+        border: 1px dotted #cccccc;
+        border-color: white;
+        width: 275px;
+        background-color: #3d444d;
+        height: 150px;
+    }
+
+    div:hover {
+        background-color: green;
+        transform: scale(1.02);
+        font-size: 18px;
+    }
+    .task-name {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 10px !important;
+    }
+    .task-description {
+        font-size: 1rem;
+    }
+    .creator-name {
+        font-size: 1rem;
+    }
+}
+
+.KonradFREEheadTuff {
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    text-align: center;
+    flex-direction: column;
+
+    h1 {
+        color: #ffffff;
+        font-size: 40px;
+        font-family: "Jua", sans-serif;
+        margin-top: 50px;
+        margin-bottom: 10px;
+        font-weight: bolder;
+        -webkit-text-stroke-width: 1px;
+        -webkit-text-stroke-color: #000000;
+    }
+
+    button {
+        border-radius: 20px;
+        border: 5px solid #000000;
+        padding: 15px;
+        background-color: #237fca;
+        width: 28%;
+        margin: 2%;
+        cursor: pointer;
+        display: inline-block;
+        transition:
+            transform 0.08s ease,
+            background-color 0.15s ease;
+    }
+
+    button:hover:not(:active) {
+        transform: scale(1.05);
+    }
+
+    button:active {
+        transform: scale(0.92);
+    }
+
+    button img {
+        width: 100%;
+        height: auto;
+
+        border-radius: 12px; /* optional */
+    }
+
+    button:hover {
+        background-color: #237fca;
+    }
+
+    button.selected {
+        background-color: #357631 !important;
+        transform: scale(1.05);
+    }
+
+    .buttonslayout {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        padding: 20px;
+    }
+}
+
+.KONRADINSANEHEAD {
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    text-align: center;
+    flex-direction: column;
+
+    button {
+        padding: 10px;
+        margin: 20px 24px;
+        border-radius: 5px;
+
+        border: 5px solid #000000;
+        font-family: "Jua", sans-serif;
+        font-size: 20px;
+        background-color: #d9d9d9;
+        cursor: pointer;
+    }
+}
