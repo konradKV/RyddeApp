@@ -137,4 +137,8 @@ body {
         background-color: #d9d9d9;
         cursor: pointer;
     }
+
+    button:hover {
+        transform: scale(1.05);
+    }
 }

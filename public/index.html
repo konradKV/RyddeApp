@@ -31,14 +31,14 @@
         </div>
         <div id="page-tasks" class="page">
             <div class="KONRADINSANEHEAD">
-                <button>+ Oppgave</button>
+                <button id="btn-create">+ Oppgave</button>
                 <div id="utskrift"></div>
             </div>
         </div>
 
         <div id="page-create" class="page">
             <h2>Lag oppgave</h2>
-            <p>Her kan du lage en ny oppgave...</p>
+            <div id="Oppglaging"></div>
         </div>
 
         <div id="page-home" class="page">
@@ -51,30 +51,33 @@
 <script>
     const buttons = document.querySelectorAll(".buttonslayout button");
     const pages = document.querySelectorAll(".page");
-    //Denne delen rullerel mellom sider ved og bytte deres CSS stil fra .page og .page.active
+
+    // FINAL showPage() — only one version
     function showPage(id, index) {
+        // Hide all pages
         pages.forEach((p) => p.classList.remove("active"));
         document.getElementById(id).classList.add("active");
+
+        // If index is null → skip updating bottom buttons
+        if (index === null) return;
+
+        // Update selected bottom button
         buttons.forEach((b) => b.classList.remove("selected"));
         buttons[index].classList.add("selected");
     }
-    //Hører etter trykking av knapper
+
+    // Bottom navigation buttons
     buttons[0].addEventListener("click", () => showPage("page-leaderboard", 0));
     buttons[1].addEventListener("click", () => showPage("page-tasks", 1));
     buttons[2].addEventListener("click", () => showPage("page-home", 2));
 
-    // Default side
+    // Internal “+ Oppgave” button
+    document
+        .getElementById("btn-create")
+        .addEventListener("click", () => showPage("page-create", null));
+
+    // Default page
     showPage("page-tasks", 1);
-
-    function showPage(id, index) {
-        // Gjøm alle sider
-        pages.forEach((p) => p.classList.remove("active"));
-        document.getElementById(id).classList.add("active");
-
-        // Enkel Skript for og selecte knapper og vite hvilken side brukaren er på
-        buttons.forEach((b) => b.classList.remove("selected"));
-        buttons[index].classList.add("selected");
-    }
 
     const utskrift = document.getElementById("utskrift");
     async function displayTasks() {
@@ -82,12 +85,14 @@
         const tasks = await response.json();
         for (let task of tasks) {
             const div = document.createElement("div");
+            div.dataset.taskid = task.id;
             const nameSpan = document.createElement("span");
             const descrSpan = document.createElement("span");
             const creatorSpan = document.createElement("span");
             nameSpan.classList.add("task-name");
             descrSpan.classList.add("task-description");
             creatorSpan.classList.add("creator-name");
+            div.addEventListener("click", slettOppgave);
 
             nameSpan.textContent = task.name;
             descrSpan.textContent = task.description;
@@ -101,5 +106,18 @@
             utskrift.appendChild(div);
         }
     }
+
+    async function slettOppgave(e) {
+        console.log("sletter oppgave");
+
+        const deleteTask = await fetch("/deleteTask", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: e.target.dataset.taskid }),
+        });
+        displayTasks();
+    }
     displayTasks();
+
+    const Oppglaging = document.getElementById("Oppglaging");
 </script>

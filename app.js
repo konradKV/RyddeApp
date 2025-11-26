@@ -4,6 +4,9 @@ const app = express();
 const sqlite3 = require("sqlite3").verbose();
 let sql;
 app.use(express.static("public"));
+// Legg til body-parsing for skjema/JSON
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
 
 // grooooooooooooooooot
 app.get("/", (req, res) => {
@@ -24,6 +27,17 @@ app.get("/getTasks", (req, res) => {
   });
 });
 
+app.delete("/deleteTask", (req, res) => {
+  try {
+    console.log(req.body);
+    const { id } = req.body;
+    db.prepare("DELETE FROM task WHERE id = ?").run(id);
+    return res.sendStatus(200);
+  } catch (err) {
+    console.log("feil ved sletting av melding:", err);
+    return res.status(500).json({ error: "kunne ikke slette melding" });
+  }
+});
 
 // server listener på port 6767 (http://localhost:6767) - konrad
 const port = "6767";
