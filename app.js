@@ -4,7 +4,7 @@ const app = express();
 const sqlite3 = require("sqlite3").verbose();
 let sql;
 app.use(express.static("public"));
-// Legg til body-parsing for skjema/JSON
+// Legg til body-parsing for skjema JSON
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
@@ -16,6 +16,21 @@ app.get("/", (req, res) => {
 // database :solbriller emotikon:
 const db = new sqlite3.Database("./ryddeApp", sqlite3.OPEN_READWRITE, (err) => {
   if (err) return console.error(err.message);
+});
+
+app.post("/addTask", (req, res) => {
+  let { taskName, creatorName, taskDescription } = req.body;
+  taskName = taskName.tostring().trim();
+  creatorName = creatorName.tostring().trim();
+  taskDescription = taskDescription.tostring().trim();
+
+  console.log("Isak Brun var her");
+
+  db.prepare(
+    "INSERT INTO task (name, creatorname, description) VALUES (?, ?, ?)",
+  ).run(taskName, creatorName, taskDescription);
+
+  return res.sendStatus(201);
 });
 
 // get request for getTasks obviously

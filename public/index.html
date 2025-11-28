@@ -45,6 +45,23 @@
             <h2>Min side</h2>
             <p>Her kommer info om brukeren...</p>
         </div>
+
+        <main>
+             <div id="left">
+                 <h1>Skriv inn din melding her</h1>
+                 <form id="skjema">
+                     <label for="taskName">Oppgave navn:</label>
+                     <input type="text" id="taskName" required>
+
+                     <label for="taskDescription">Oppgave beskrivelse:</label>
+                     <input type="text" id="taskDescription" required>
+
+                     <label for="creatorName">Ditt navn:</label>
+                     <input type="text" id="creatorName" required>
+
+                     <button type="submit">Send melding</button>
+                 </form>
+             </div>
     </body>
 </html>
 
@@ -77,6 +94,8 @@
         .addEventListener("click", () => showPage("page-create", null));
 
     // Default page
+    //
+
     showPage("page-tasks", 1);
 
     const utskrift = document.getElementById("utskrift");
@@ -107,6 +126,23 @@
         }
     }
 
+    async function addTask(e){
+      e.preventDefault();
+
+      const taskName = taskNameEl.value.trim()
+      const creatorNameEl = creatorNameEl.value.trim()
+      const taskDescription = taskDescriptionEl.value.trim()
+
+      const res = await fetch('/addTask', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ person, msg })
+         });
+      displayTasks()
+      taskEl.value = "";
+
+    }
+
     async function slettOppgave(e) {
         console.log("sletter oppgave");
 
@@ -120,4 +156,10 @@
     displayTasks();
 
     const Oppglaging = document.getElementById("Oppglaging");
+
+    const createTask await fetch("/createTask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(...)
+    })
 </script>
