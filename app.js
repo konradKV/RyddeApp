@@ -20,14 +20,12 @@ const db = new sqlite3.Database("./ryddeApp", sqlite3.OPEN_READWRITE, (err) => {
 
 app.post("/addTask", (req, res) => {
   let { taskName, creatorName, taskDescription } = req.body;
-  taskName = taskName.tostring().trim();
-  creatorName = creatorName.tostring().trim();
-  taskDescription = taskDescription.tostring().trim();
-
-  console.log("Isak Brun var her");
+  taskName = taskName.toString().trim();
+  creatorName = creatorName.toString().trim();
+  taskDescription = taskDescription.toString().trim();
 
   db.prepare(
-    "INSERT INTO task (name, creatorname, description) VALUES (?, ?, ?)",
+    "INSERT INTO task (name, creatorUser, description) VALUES (?, ?, ?)",
   ).run(taskName, creatorName, taskDescription);
 
   return res.sendStatus(201);
@@ -44,7 +42,6 @@ app.get("/getTasks", (req, res) => {
 
 app.delete("/deleteTask", (req, res) => {
   try {
-    console.log(req.body);
     const { id } = req.body;
     db.prepare("DELETE FROM task WHERE id = ?").run(id);
     return res.sendStatus(200);

@@ -6,9 +6,7 @@
         <title>Hei!!!</title>
         <link rel="stylesheet" href="styles/styling.css" />
         <link
-            href="https://fonts.googleapis.com/css2?family=Jua&display=swap"
-            rel="stylesheet"
-        />
+            href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet"/>
     </head>
     <body>
         <header>
@@ -25,10 +23,15 @@
                 </div>
             </div>
         </header>
+
+        <!--Leaderboard -->
         <div id="page-leaderboard" class="page">
-            <h2>Leaderboard</h2>
-            <p>Topplisten kommer her...</p>
+            <div class = "Wi">
+                <h2>Leaderboard</h2>
+                <p>Topplisten kommer her...</p>
+            <div>
         </div>
+
         <div id="page-tasks" class="page">
             <div class="KONRADINSANEHEAD">
                 <button id="btn-create">+ Oppgave</button>
@@ -38,30 +41,30 @@
 
         <div id="page-create" class="page">
             <h2>Lag oppgave</h2>
-            <div id="Oppglaging"></div>
+            <div id="left">
+                <h1>Skriv inn din melding her</h1>
+                <form id="skjema">
+                <div class="lable-layout">
+                    <label for="taskName">Oppgave navn:</label>
+                    <input type="text" id="taskName" required>
+
+                    <label for="taskDescription">Oppgave beskrivelse:</label>
+                    <textarea id="taskDescription" class="big-input" required></textarea>
+
+                    <label for="creatorName">Ditt navn:</label>
+                    <input type="text" id="creatorName" required>
+
+                    <button type="submit">Lag oppgave</button>
+                </div>
+                </form>
+            </div>
         </div>
 
         <div id="page-home" class="page">
             <h2>Min side</h2>
             <p>Her kommer info om brukeren...</p>
         </div>
-
         <main>
-             <div id="left">
-                 <h1>Skriv inn din melding her</h1>
-                 <form id="skjema">
-                     <label for="taskName">Oppgave navn:</label>
-                     <input type="text" id="taskName" required>
-
-                     <label for="taskDescription">Oppgave beskrivelse:</label>
-                     <input type="text" id="taskDescription" required>
-
-                     <label for="creatorName">Ditt navn:</label>
-                     <input type="text" id="creatorName" required>
-
-                     <button type="submit">Send melding</button>
-                 </form>
-             </div>
     </body>
 </html>
 
@@ -93,13 +96,24 @@
         .getElementById("btn-create")
         .addEventListener("click", () => showPage("page-create", null));
 
-    // Default page
-    //
 
+    // When "Lag oppgave" inside the form is submitted → go to default page
+    document.getElementById("skjema").addEventListener("submit", (event) => {
+        event.preventDefault(); // prevents page reload
+
+        // OPTIONAL: Insert your code here to save the task or send it to the server
+
+        // Go back to default page
+        showPage("page-tasks", 1);
+    });
+
+
+    //default page
     showPage("page-tasks", 1);
 
     const utskrift = document.getElementById("utskrift");
     async function displayTasks() {
+        utskrift.innerHTML = '';
         const response = await fetch("/getTasks");
         const tasks = await response.json();
         for (let task of tasks) {
@@ -108,41 +122,53 @@
             const nameSpan = document.createElement("span");
             const descrSpan = document.createElement("span");
             const creatorSpan = document.createElement("span");
+
+            const deleteBtn = document.createElement("button");
+            deleteBtn.textContent = "✖"
+            deleteBtn.classList.add("delete-btn")
+            deleteBtn.dataset.taskid = task.id;
+
+            deleteBtn.addEventListener("click", (e) => {
+              e.stopPropagation();
+              slettOppgave(e);
+            })
+
             nameSpan.classList.add("task-name");
             descrSpan.classList.add("task-description");
             creatorSpan.classList.add("creator-name");
-            div.addEventListener("click", slettOppgave);
 
             nameSpan.textContent = task.name;
             descrSpan.textContent = task.description;
             creatorSpan.textContent = "Laget av: " + task.creatorUser;
+
+            div.appendChild(deleteBtn)
             div.appendChild(nameSpan);
             div.appendChild(document.createElement("br"));
             div.appendChild(creatorSpan);
             div.appendChild(document.createElement("br"));
             div.appendChild(descrSpan);
-
-            utskrift.appendChild(div);
+            utskrift.appendChild(div)
         }
     }
+    const skjema = document.getElementById('skjema');
+    const taskNameEl = document.getElementById('taskName');
+    const creatorNameEl = document.getElementById('creatorName');
+    const taskDescriptionEl = document.getElementById('taskDescription')
 
+    skjema.addEventListener('submit', addTask);
     async function addTask(e){
       e.preventDefault();
-
       const taskName = taskNameEl.value.trim()
-      const creatorNameEl = creatorNameEl.value.trim()
+      const creatorName = creatorNameEl.value.trim()
       const taskDescription = taskDescriptionEl.value.trim()
 
       const res = await fetch('/addTask', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ person, msg })
+            body: JSON.stringify({ taskName, creatorName, taskDescription })
          });
       displayTasks()
-      taskEl.value = "";
-
     }
-
     async function slettOppgave(e) {
         console.log("sletter oppgave");
 
@@ -150,16 +176,11 @@
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ id: e.target.dataset.taskid }),
+
         });
+
         displayTasks();
     }
-    displayTasks();
 
-    const Oppglaging = document.getElementById("Oppglaging");
-
-    const createTask await fetch("/createTask", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(...)
-    })
+    displayTasks()
 </script>
