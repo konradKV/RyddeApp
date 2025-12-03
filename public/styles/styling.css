@@ -39,6 +39,7 @@ body {
         border-color: white;
         width: 275px;
         background-color: #3d444d;
+        cursor: pointer;
         height: 150px;
     }
 
@@ -168,75 +169,50 @@ body {
     }
 }
 
-#page-create {
-    padding: 20px;
-    align-content: center;
-    justify-content: center;
-    text-align: center;
-    font-family: "Jua", sans-serif;
-
-    #skjema {
-        padding: 20px;
-        align-content: center;
-        justify-content: center;
-        text-align: center;
-
-        .lable-layout {
-            padding: 10px;
-            margin: 20px 24px;
-            border-radius: 5px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        label {
-            margin-top: 20px;
-            font-size: 20px;
-        }
-
-        input {
-            border-radius: 5px;
-            padding: 10px;
-        }
-
-        .big-input {
-            width: 100%;
-            height: 150px;
-            padding: 10px;
-
-            resize: vertical;
-            font-size: 16px;
-
-            box-sizing: border-box;
-        }
-
-        button {
-            padding: 10px;
-            margin-top: 20px;
-            border-radius: 5px;
-            font-size: 20px;
-            background-color: #d9d9d9;
-            cursor: pointer;
-            border: 5px solid #000000;
-            font-family: "Jua", sans-serif;
-        }
-
-        button:hover {
-            transform: scale(1.05);
-        }
-    }
-}
-
-.Wigga-delightful {
-    padding: 20px;
-    align-content: center;
-    justify-content: center;
+.Wiggo-delightful {
+    padding: 10px;
     text-align: center;
 
     h2 {
         font-family: "Jua", sans-serif;
-                font-size: 40px;
-        
+        font-size: 40px;
     }
+
+    label {
+        font-family: "Jua", sans-serif;
+        display: inline-block;
+        margin-top: 10px;
+        padding: 10px 15px;
+
+        width: 200px;
+        background-color: #aba887;
+        border: 1px dotted white;
+        border-radius: 10px;
+        vertical-align: top;
+
+        h1 {
+            font-size: 20px; /* Task name */
+        }
+
+        h3 {
+            font-size: 12px; /* Description */
+            font-weight: normal;
+        }
+
+        h4 {
+            font-size: 14px; /* Name */
+            font-weight: bold;
+        }
+    }
+}
+
+#user-selection {
+    display: flex;
+    width: 40%;
+    padding: 5px;
+    margin: 10px;
+    border-radius: 5px;
+    border: 2px solid #000000;
+    font-family: "Jua", sans-serif;
+    font-size: 12px;
 }

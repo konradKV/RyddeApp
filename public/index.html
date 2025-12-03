@@ -6,30 +6,46 @@
         <title>Hei!!!</title>
         <link rel="stylesheet" href="styles/styling.css" />
         <link
-            href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet"/>
+            href="https://fonts.googleapis.com/css2?family=Jua&display=swap"
+            rel="stylesheet"
+        />
     </head>
     <body>
         <header>
             <div class="KonradFREEheadTuff">
+                <select id="user-selection" name="selectedUser">
+                </select>
+
                 <h1>Daglig oppgaver</h1>
 
                 <!-- Only ONE buttonslayout -->
                 <div class="buttonslayout">
-                    <button>
-                        <img src="img/podium.png" alt="Leaderboard" />
+                    <button id="btn-leaderboard">
+                        <img src="img/podium.png" alt="" />
                     </button>
-                    <button><img src="img/task.png" alt="Tasks" /></button>
-                    <button><img src="img/home.png" alt="Home" /></button>
+
+                    <button id="btn-tasks">
+                        <img src="img/task.png" alt="" />
+                    </button>
+
+                    <button id="btn-home">
+                        <img src="img/home.png" alt="" />
+                    </button>
                 </div>
             </div>
         </header>
 
         <!--Leaderboard -->
         <div id="page-leaderboard" class="page">
-            <div class = "Wigga-delightful">
+            <div class="Wiggo-delightful">
                 <h2>Leaderboard</h2>
-                <p>Topplisten kommer her...</p>
-            <div>
+                <label>
+                    <h4>Name</h4>
+                    <h1>Task name</h1>
+                    <h3>Description</h3>
+                </label>
+
+            </div>
         </div>
 
         <div id="page-tasks" class="page">
@@ -44,18 +60,18 @@
             <div id="left">
                 <h1>Skriv inn din melding her</h1>
                 <form id="skjema">
-                <div class="lable-layout">
-                    <label for="taskName">Oppgave navn:</label>
-                    <input type="text" id="taskName" required>
+                    <div class="lable-layout">
+                        <label for="taskName">Oppgave navn:</label>
+                        <input type="text" id="taskName" required />
 
-                    <label for="taskDescription">Oppgave beskrivelse:</label>
-                    <textarea id="taskDescription" class="big-input" required></textarea>
+                        <label for="taskDescription">Oppgave beskrivelse:</label>
+                        <textarea id="taskDescription" class="big-input" require></textarea>
 
-                    <label for="creatorName">Ditt navn:</label>
-                    <input type="text" id="creatorName" required>
+                        <label for="creatorName">Ditt navn:</label>
+                        <input type="text" id="creatorName" required />
 
-                    <button type="submit">Lag oppgave</button>
-                </div>
+                        <button type="submit">Lag oppgave</button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -64,7 +80,10 @@
             <h2>Min side</h2>
             <p>Her kommer info om brukeren...</p>
         </div>
-        <main>
+
+        <div id="page-doing" class="page"></div>
+
+        <div>
     </body>
 </html>
 
@@ -72,12 +91,11 @@
     const buttons = document.querySelectorAll(".buttonslayout button");
     const pages = document.querySelectorAll(".page");
 
-    // FINAL showPage() — only one version
     function showPage(id, index) {
         // Hide all pages
         pages.forEach((p) => p.classList.remove("active"));
+        // Show requested page
         document.getElementById(id).classList.add("active");
-
         // If index is null → skip updating bottom buttons
         if (index === null) return;
 
@@ -92,28 +110,41 @@
     buttons[2].addEventListener("click", () => showPage("page-home", 2));
 
     // Internal “+ Oppgave” button
+
     document
         .getElementById("btn-create")
         .addEventListener("click", () => showPage("page-create", null));
-
 
     // When "Lag oppgave" inside the form is submitted → go to default page
     document.getElementById("skjema").addEventListener("submit", (event) => {
         event.preventDefault(); // prevents page reload
 
-        // OPTIONAL: Insert your code here to save the task or send it to the server
-
         // Go back to default page
         showPage("page-tasks", 1);
     });
 
-
     //default page
     showPage("page-tasks", 1);
 
+    async function displayUsers() {
+      const userDropdown = document.getElementById("user-selection")
+      const getUsers = await fetch("/getUsers");
+      const userData = await getUsers.json();
+      console.log(userData);
+
+      userData.forEach(item => {
+        console.log("wiggo var her")
+        const userOption = document.createElement("option");
+        userOption.value = item.id;
+        userOption.textContent = item.username;
+        userDropdown.appendChild(userOption);
+      });
+    };
+    displayUsers()
+
     const utskrift = document.getElementById("utskrift");
     async function displayTasks() {
-        utskrift.innerHTML = '';
+        utskrift.innerHTML = "";
         const response = await fetch("/getTasks");
         const tasks = await response.json();
         for (let task of tasks) {
@@ -124,14 +155,14 @@
             const creatorSpan = document.createElement("span");
 
             const deleteBtn = document.createElement("button");
-            deleteBtn.textContent = "✖"
-            deleteBtn.classList.add("delete-btn")
+            deleteBtn.textContent = "✖";
+            deleteBtn.classList.add("delete-btn");
             deleteBtn.dataset.taskid = task.id;
 
             deleteBtn.addEventListener("click", (e) => {
-              e.stopPropagation();
-              slettOppgave(e);
-            })
+                e.stopPropagation();
+                slettOppgave(e);
+            });
 
             nameSpan.classList.add("task-name");
             descrSpan.classList.add("task-description");
@@ -141,33 +172,33 @@
             descrSpan.textContent = task.description;
             creatorSpan.textContent = "Laget av: " + task.creatorUser;
 
-            div.appendChild(deleteBtn)
+            div.appendChild(deleteBtn);
             div.appendChild(nameSpan);
             div.appendChild(document.createElement("br"));
             div.appendChild(creatorSpan);
             div.appendChild(document.createElement("br"));
             div.appendChild(descrSpan);
-            utskrift.appendChild(div)
+            utskrift.appendChild(div);
         }
     }
-    const skjema = document.getElementById('skjema');
-    const taskNameEl = document.getElementById('taskName');
-    const creatorNameEl = document.getElementById('creatorName');
-    const taskDescriptionEl = document.getElementById('taskDescription')
+    const skjema = document.getElementById("skjema");
+    const taskNameEl = document.getElementById("taskName");
+    const creatorNameEl = document.getElementById("creatorName");
+    const taskDescriptionEl = document.getElementById("taskDescription");
 
-    skjema.addEventListener('submit', addTask);
-    async function addTask(e){
-      e.preventDefault();
-      const taskName = taskNameEl.value.trim()
-      const creatorName = creatorNameEl.value.trim()
-      const taskDescription = taskDescriptionEl.value.trim()
+    skjema.addEventListener("submit", addTask);
+    async function addTask(e) {
+        e.preventDefault();
+        const taskName = taskNameEl.value.trim();
+        const creatorName = creatorNameEl.value.trim();
+        const taskDescription = taskDescriptionEl.value.trim();
 
-      const res = await fetch('/addTask', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ taskName, creatorName, taskDescription })
-         });
-      displayTasks()
+        const res = await fetch("/addTask", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ taskName, creatorName, taskDescription }),
+        });
+        displayTasks();
     }
     async function slettOppgave(e) {
         console.log("sletter oppgave");
@@ -176,11 +207,10 @@
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ id: e.target.dataset.taskid }),
-
         });
 
         displayTasks();
     }
 
-    displayTasks()
+    displayTasks();
 </script>

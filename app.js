@@ -40,6 +40,14 @@ app.get("/getTasks", (req, res) => {
   });
 });
 
+app.get("/getUsers", (req, res) => {
+  sql = "SELECT * FROM user";
+  db.all(sql, [], (err, rows) => {
+    if (err) return console.error(err.message);
+    res.json(rows);
+  });
+});
+
 app.delete("/deleteTask", (req, res) => {
   try {
     const { id } = req.body;
