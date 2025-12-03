@@ -227,3 +227,16 @@ body {
         }
     }
 }
+
+.Wigga-delightful {
+    padding: 20px;
+    align-content: center;
+    justify-content: center;
+    text-align: center;
+
+    h2 {
+        font-family: "Jua", sans-serif;
+                font-size: 40px;
+        
+    }
+}
