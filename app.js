@@ -19,16 +19,20 @@ const db = new sqlite3.Database("./ryddeApp", sqlite3.OPEN_READWRITE, (err) => {
 });
 
 app.post("/addTask", (req, res) => {
-  let { taskName, creatorName, taskDescription } = req.body;
+  let { taskName, currentName, taskDescription } = req.body;
   taskName = taskName.toString().trim();
-  creatorName = creatorName.toString().trim();
   taskDescription = taskDescription.toString().trim();
 
   db.prepare(
     "INSERT INTO task (name, creatorUser, description) VALUES (?, ?, ?)",
-  ).run(taskName, creatorName, taskDescription);
+  ).run(taskName, currentName, taskDescription);
 
   return res.sendStatus(201);
+});
+app.post("/completeTask", (req, res) => {
+  const { id } = req.body;
+  db.prepare("UPDATE task SET completed = 1 WHERE id = ?").run(id);
+  return res.sendStatus(200);
 });
 
 // get request for getTasks obviously
