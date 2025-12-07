@@ -31,9 +31,17 @@ app.post("/addTask", (req, res) => {
 });
 app.post("/completeTask", (req, res) => {
   const { id } = req.body;
-  db.prepare(
-    "UPDATE task SET completed = current_timestamp() WHERE id = ?",
-  ).run(id);
+  db.prepare("UPDATE task SET completed = 0 WHERE id = ?").run(id);
+  return res.sendStatus(200);
+});
+
+app.post("/addPoints", (req, res) => {
+  const { taskDifficulty, username } = req.body;
+  console.log("points");
+  db.prepare("UPDATE user SET points = points + ? WHERE username = ?").run(
+    taskDifficulty,
+    username,
+  );
   return res.sendStatus(200);
 });
 
@@ -55,7 +63,15 @@ app.get("/getCompletedTasks", (req, res) => {
 });
 
 app.get("/getUsers", (req, res) => {
-  sql = "SELECT * FROM user";
+  sql = "SELECT username FROM user";
+  db.all(sql, [], (err, rows) => {
+    if (err) return console.error(err.message);
+    res.json(rows);
+  });
+});
+
+app.get("/getUserPoints", (req, res) => {
+  sql = "SELECT rank, points FROM user";
   db.all(sql, [], (err, rows) => {
     if (err) return console.error(err.message);
     res.json(rows);
