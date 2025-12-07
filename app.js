@@ -19,25 +19,35 @@ const db = new sqlite3.Database("./ryddeApp", sqlite3.OPEN_READWRITE, (err) => {
 });
 
 app.post("/addTask", (req, res) => {
-  let { taskName, currentName, taskDescription } = req.body;
+  let { taskName, currentName, taskDescription, taskDifficulty } = req.body;
   taskName = taskName.toString().trim();
   taskDescription = taskDescription.toString().trim();
 
   db.prepare(
-    "INSERT INTO task (name, creatorUser, description) VALUES (?, ?, ?)",
-  ).run(taskName, currentName, taskDescription);
+    "INSERT INTO task (name, creatorUser, description, difficulty) VALUES (?, ?, ?, ?)",
+  ).run(taskName, currentName, taskDescription, taskDifficulty);
 
   return res.sendStatus(201);
 });
 app.post("/completeTask", (req, res) => {
   const { id } = req.body;
-  db.prepare("UPDATE task SET completed = 1 WHERE id = ?").run(id);
+  db.prepare(
+    "UPDATE task SET completed = current_timestamp() WHERE id = ?",
+  ).run(id);
   return res.sendStatus(200);
 });
 
 // get request for getTasks obviously
 app.get("/getTasks", (req, res) => {
-  sql = "SELECT * FROM task";
+  sql = "SELECT * FROM task WHERE completed IS NULL";
+  db.all(sql, [], (err, rows) => {
+    if (err) return console.error(err.message);
+    res.json(rows);
+  });
+});
+
+app.get("/getCompletedTasks", (req, res) => {
+  sql = "SELECT * FROM task WHERE completed IS NOT NULL";
   db.all(sql, [], (err, rows) => {
     if (err) return console.error(err.message);
     res.json(rows);

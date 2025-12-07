@@ -12,7 +12,7 @@
     </head>
     <body>
         <header>
-            <div class="KonradFREEheadTuff">
+            <div class="HeaderButtons">
                 <select id="user-selection" name="selectedUser"></select>
                 <h1>Daglig oppgaver</h1>
                 <div class="buttonslayout">
@@ -33,13 +33,13 @@
 
         <!--Leaderboard -->
         <div id="page-leaderboard" class="page">
-            <div class="Wiggo-delightful">
+            <div class="Leaderboard">
                 <h2>Leaderboard</h2>
             </div>
         </div>
 
         <div id="page-tasks" class="page">
-            <div class="KONRADINSANEHEAD">
+            <div class="Task-Creation">
                 <button id="btn-create">+ Oppgave</button>
                 <div id="utskrift"></div>
             </div>
@@ -61,6 +61,13 @@
                             class="big-input"
                             required
                         ></textarea>
+
+                        <select name="difficulty" id="difficultySelect">
+                            <option value="difficulty1">1</option>
+                            <option value="difficulty2">2</option>
+                            <option value="difficulty3">3</option>
+                        </select>
+
                         <button type="submit">Lag oppgave</button>
                     </div>
                 </form>
@@ -70,27 +77,46 @@
         <div id="page-home" class="page">
             <h2>Min side</h2>
             <p>Her kommer info om brukeren...</p>
+            <div id="completedUtskrift"></div>
         </div>
 
         <div id="page-doing" class="page">
             <div id="active-task"></div>
             <button>Finished</button>
         </div>
+        <!--Lyder
+        <audio id="clickSound" src="sounds/"></audio>
+        <audio id="hoverSound" src="sounds/"></audio> -->
     </body>
 </html>
 
 <script>
+    //  const clickSound = document.getElementById("clickSound");
+    //  const hoverSound = document.getElementById("hoverSound");
+
+    //   document.querySelectorAll("button").forEach((btn) => {
+    //       btn.addEventListener("mouseenter", () => {
+    //           hoverSound.currentTime = 0;
+    //           hoverSound.play();
+    //       });
+    //
+    //       btn.addEventListener("click", () => {
+    //           clickSound.currentTime = 0;
+    //          clickSound.play();
+    //       });
+    //    });
+
     const buttons = document.querySelectorAll(".buttonslayout button");
     const pages = document.querySelectorAll(".page");
 
     function showPage(id, index) {
         // Hide all pages
         pages.forEach(
-            (p) => p.classList.remove("active"),
+            (p) => (p.style.display = "none"),
             console.log("Removed class"),
         );
         // Show requested page
-        document.getElementById(id).classList.add("active");
+        document.getElementById(id).style.display = "block";
         // If index is null → skip updating bottom buttons
         if (index === null) return;
 
@@ -102,16 +128,18 @@
     // Bottom navigation buttons
     buttons[0].addEventListener("click", () => showPage("page-leaderboard", 0));
     buttons[1].addEventListener("click", () => showPage("page-tasks", 1));
-    buttons[2].addEventListener("click", () => showPage("page-home", 2));
+    buttons[2].addEventListener(
+        "click",
+        () => showPage("page-home", 2),
+        displayComletedTasks(),
+    );
 
     // Internal “+ Oppgave” button
-
     document
         .getElementById("btn-create")
         .addEventListener("click", () => showPage("page-create", null));
 
     //internal til "active-task" path
-
     function WorkingPage() {}
 
     // When "Lag oppgave" inside the form is submitted → go to default page
@@ -145,18 +173,24 @@
 
     const utskrift = document.getElementById("utskrift");
     async function displayTasks() {
+        console.log("displayTasks er kjørt");
         utskrift.innerHTML = "";
         const response = await fetch("/getTasks");
         const tasks = await response.json();
+        console.log(tasks);
         for (let task of tasks) {
             const div = document.createElement("div");
             div.dataset.taskid = task.id;
             div.setAttribute("id", task.id);
-            div.classList.add("ISAK_HEAD");
+            div.classList.add("ISAK_HEAD"); // tuff klasse navn ivan - brun
 
             const nameSpan = document.createElement("span");
             nameSpan.classList.add("task-name");
             nameSpan.textContent = task.name;
+
+            const difficultySpan = document.createElement("span");
+            difficultySpan.classList.add("task-difficulty");
+            difficultySpan.textContent = "Vanskelighetsgrad " + task.difficulty;
 
             const descrSpan = document.createElement("span");
             descrSpan.classList.add("task-description");
@@ -185,7 +219,6 @@
                 e.stopPropagation();
                 completeTask(e);
             });
-
             div.appendChild(finishBtn);
             div.appendChild(deleteBtn);
             div.appendChild(nameSpan);
@@ -193,7 +226,47 @@
             div.appendChild(creatorSpan);
             div.appendChild(document.createElement("br"));
             div.appendChild(descrSpan);
+            div.appendChild(document.createElement("br"));
+            div.appendChild(difficultySpan);
             utskrift.appendChild(div);
+        }
+    }
+
+    // viser oppgavene som er ferdig
+    async function displayComletedTasks() {
+        completedUtskrift.innerHTML = "";
+        const response = await fetch("/getCompletedTasks");
+        const tasks = await response.json();
+        for (let task of tasks) {
+            const div = document.createElement("div");
+            div.dataset.taskid = task.id;
+            div.setAttribute("id", task.id);
+            div.classList.add("ISAK_HEAD");
+
+            const nameSpan = document.createElement("span");
+            nameSpan.classList.add("task-name");
+            nameSpan.textContent = task.name;
+
+            const difficultySpan = document.createElement("span");
+            difficultySpan.classList.add("task-difficulty");
+            difficultySpan.textContent = "Vanskelighetsgrad " + task.difficulty;
+
+            const descrSpan = document.createElement("span");
+            descrSpan.classList.add("task-description");
+            descrSpan.textContent = task.description;
+
+            const creatorSpan = document.createElement("span");
+            creatorSpan.classList.add("creator-name");
+            creatorSpan.textContent = "Laget av: " + task.creatorUser;
+
+            div.appendChild(nameSpan);
+            div.appendChild(document.createElement("br"));
+            div.appendChild(creatorSpan);
+            div.appendChild(document.createElement("br"));
+            div.appendChild(descrSpan);
+            div.appendChild(document.createElement("br"));
+            div.appendChild(difficultySpan);
+            completedUtskrift.appendChild(div);
         }
     }
 
@@ -208,15 +281,28 @@
     });
 
     skjema.addEventListener("submit", addTask);
+    let taskDifficulty = "1";
+    const difficultySelect = document.getElementById("difficultySelect");
+    difficultySelect.addEventListener("change", () => {
+        return (taskDifficulty =
+            difficultySelect.options[difficultySelect.selectedIndex].text);
+    });
+
     async function addTask(e) {
         e.preventDefault();
         const taskName = taskNameEl.value.trim();
         const taskDescription = taskDescriptionEl.value.trim();
         console.log(currentName);
+        console.log(taskDifficulty);
         const res = await fetch("/addTask", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ taskName, currentName, taskDescription }),
+            body: JSON.stringify({
+                taskName,
+                currentName,
+                taskDescription,
+                taskDifficulty,
+            }),
         });
         displayTasks();
     }
@@ -230,24 +316,21 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ id: e.target.dataset.taskid }),
         });
-
         displayTasks();
     }
+
     //Sletter oppgave
     async function slettOppgave(e) {
         console.log("sletter oppgave");
-
         const deleteTask = await fetch("/deleteTask", {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ id: e.target.dataset.taskid }),
         });
-
         displayTasks();
     }
 
     displayTasks();
-
     document.querySelectorAll(".ISAK_HEAD").forEach((el) => {
         el.addEventListener(
             "click",
@@ -257,6 +340,6 @@
         console.log("applied listener");
     });
 
-    //Tuff Ivan shit (No molestation or touching allowed)
+    // Tuff Ivan shit (No molestation or touching allowed)
     const finished = document.getElementById("finished");
 </script>
