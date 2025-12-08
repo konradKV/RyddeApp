@@ -155,7 +155,7 @@ async function displayPoints() {
 // viser oppgavene som er ferdig
 async function displayComletedTasks() {
   completedUtskrift.innerHTML = "";
-  console.log(currentName)
+  console.log("hei, jeg heter displayComletedTasks() og currentName er", currentName)
   const response = await fetch("/getCompletedTasks", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -241,7 +241,7 @@ async function completeTask(e) {
   const completeTask = await fetch("/completeTask", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id: e.target.dataset.taskid }),
+    body: JSON.stringify({ id: e.target.dataset.taskid, currentName }),
   });
   displayTasks();
   addPoints();

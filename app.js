@@ -32,10 +32,11 @@ app.post("/addTask", (req, res) => {
 });
 
 app.post("/completeTask", (req, res) => {
-  const { id } = req.body;
+  const { id, currentName } = req.body;
   const currentTime = new Date().toLocaleString()
   console.log(currentTime)
-  db.prepare("UPDATE task SET completed = ? WHERE id = ?").run(currentTime, id);
+  db.prepare("UPDATE task SET completed = ?, completerUser = ? WHERE id = ?").run(currentTime, currentName, id);
+  console.log("hei, jeg heter /completeTask og jeg fikk", currentTime, id, currentName);
   return res.sendStatus(200);
 });
 
@@ -60,11 +61,12 @@ app.get("/getTasks", (req, res) => {
 
 app.post("/getCompletedTasks", (req, res) => {
   const { username } = req.body
-  sql = "SELECT * FROM task WHERE completed IS NOT NULL AND username = ?";
+  console.log(username)
+  sql = "SELECT * FROM task WHERE completed IS NOT NULL AND completerUser = ?";
   db.all(sql, [username], (err, rows) => {
     if (err) return console.error(err.message)
     res.json(rows)
-    console.log(rows)
+    console.log("hei. jeg heter /getCompletedTasks og jeg fikk dette:", rows)
   });
 });
 
