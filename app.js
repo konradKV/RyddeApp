@@ -51,18 +51,19 @@ app.post("/addPoints", (req, res) => {
 
 // get request for getTasks obviously
 app.get("/getTasks", (req, res) => {
-  sql = "SELECT * FROM task WHERE completed IS NULL";
+  sql = "SELECT * FROM task WHERE completed IS NULL"
   db.all(sql, [], (err, rows) => {
     if (err) return console.error(err.message);
     res.json(rows);
   });
 });
 
-app.get("/getCompletedTasks", (req, res) => {
-  sql = "SELECT * FROM task WHERE completed IS NOT NULL";
-  db.all(sql, [], (err, rows) => {
-    if (err) return console.error(err.message);
-    res.json(rows);
+app.post("/getCompletedTasks", (req, res) => {
+  const { username } = req.body
+  sql = "SELECT * FROM task WHERE completed IS NOT NULL AND username = ?";
+  db.all(sql, [username], (err, rows) => {
+    if (err) return console.error(err.message)
+    res.json(rows)
     console.log(rows)
   });
 });
@@ -70,7 +71,7 @@ app.get("/getCompletedTasks", (req, res) => {
 app.get("/getUsers", (req, res) => {
   sql = "SELECT username FROM user";
   db.all(sql, [], (err, rows) => {
-    if (err) return console.error(err.message);
+    if (err) return console.error(err.message)
     res.json(rows);
   });
 });
@@ -81,7 +82,6 @@ app.post("/getUserPoints", (req, res) => {
     return res.json({ error: "username missing" });
   }
   const sql = "SELECT rank, points FROM user WHERE username = ?";
-
   db.get(sql, [username], (err, row) => {
     if (err) {
       console.error(err.message);

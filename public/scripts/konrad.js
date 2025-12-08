@@ -155,7 +155,13 @@ async function displayPoints() {
 // viser oppgavene som er ferdig
 async function displayComletedTasks() {
   completedUtskrift.innerHTML = "";
-  const response = await fetch("/getCompletedTasks");
+  console.log(currentName)
+  const response = await fetch("/getCompletedTasks", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify( { currentName } ),
+  });
+
   const tasks = await response.json();
   console.log("comTask", tasks);
 
@@ -272,5 +278,4 @@ document.querySelectorAll(".ISAK_HEAD").forEach((el) => {
   console.log("applied listener");
 });
 
-// Tuff Ivan shit (No molestation or touching allowed)
 const finished = document.getElementById("finished");
