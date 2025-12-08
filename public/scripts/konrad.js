@@ -1,17 +1,3 @@
-//  const clickSound = document.getElementById("clickSound");
-//  const hoverSound = document.getElementById("hoverSound");
-
-//   document.querySelectorAll("button").forEach((btn) => {
-//       btn.addEventListener("mouseenter", () => {
-//           hoverSound.currentTime = 0;
-//           hoverSound.play();
-//       });
-//
-//       btn.addEventListener("click", () => {
-//           clickSound.currentTime = 0;
-//          clickSound.play();
-//       });
-//    });
 
 const buttons = document.querySelectorAll(".buttonslayout button");
 const pages = document.querySelectorAll(".page");
