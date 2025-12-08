@@ -16,6 +16,13 @@
 const buttons = document.querySelectorAll(".buttonslayout button");
 const pages = document.querySelectorAll(".page");
 
+let currentName = "";
+
+const nameSelect = document.getElementById("user-selection");
+nameSelect.addEventListener("change", () => {
+  return (currentName = nameSelect.options[nameSelect.selectedIndex].text);
+});
+
 function showPage(id, index) {
   // Hide all pages
   pages.forEach(
@@ -35,12 +42,11 @@ function showPage(id, index) {
 // Bottom navigation buttons
 buttons[0].addEventListener("click", () => showPage("page-leaderboard", 0));
 buttons[1].addEventListener("click", () => showPage("page-tasks", 1));
-buttons[2].addEventListener(
-  "click",
-  () => showPage("page-home", 2),
-  displayComletedTasks(),
-  displayPoints(),
-);
+buttons[2].addEventListener("click", () => {
+  showPage("page-home", 2);
+  displayComletedTasks();
+  displayPoints();
+});
 
 // Internal “+ Oppgave” button
 document
@@ -61,7 +67,6 @@ document.getElementById("skjema").addEventListener("submit", (event) => {
 //default page
 showPage("page-tasks", 1);
 
-let currentName = "";
 
 async function displayUsers() {
   const userDropdown = document.getElementById("user-selection");
@@ -131,9 +136,9 @@ async function displayTasks() {
     div.appendChild(deleteBtn);
     div.appendChild(nameSpan);
     div.appendChild(document.createElement("br"));
-    div.appendChild(creatorSpan);
-    div.appendChild(document.createElement("br"));
     div.appendChild(descrSpan);
+    div.appendChild(document.createElement("br"));
+    div.appendChild(creatorSpan);
     div.appendChild(document.createElement("br"));
     div.appendChild(difficultySpan);
     utskrift.appendChild(div);
@@ -141,19 +146,24 @@ async function displayTasks() {
 }
 
 async function displayPoints() {
-  const response = await fetch("/getUserPoints");
-  const kuledata = await response.json();
-  for (let data of kuledata) {
-    const dataDiv = document.createElement("div");
-    const rankSpan = document.createElement("span");
-    const pointSpan = document.createElement("span");
+  const response = await fetch("/getUserPoints", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username: currentName })
+  });
 
-    rankSpan.textContent = "Rank: " + data.rank;
-    pointSpan.textContent = "Poeng: " + data.points;
-    dataDiv.appendChild(rankSpan);
-    dataDiv.appendChild(pointSpan);
-    pointsUtskrift.appendChild(dataDiv);
-  }
+  const kuledata = await response.json();
+
+  const dataDiv = document.createElement("div");
+  // const rankSpan = document.createElement("span");
+  const pointSpan = document.createElement("span");
+
+  // rankSpan.textContent = "Rank: " + kuledata.rank;
+  pointSpan.textContent = "Poeng: " + kuledata.points;
+
+  // dataDiv.appendChild(rankSpan);
+  dataDiv.appendChild(pointSpan);
+  pointsUtskrift.appendChild(dataDiv);
 }
 
 // viser oppgavene som er ferdig
@@ -161,10 +171,16 @@ async function displayComletedTasks() {
   completedUtskrift.innerHTML = "";
   const response = await fetch("/getCompletedTasks");
   const tasks = await response.json();
+  console.log("comTask", tasks);
+
   for (let task of tasks) {
     const div = document.createElement("div");
     div.dataset.taskid = task.id;
     div.setAttribute("id", task.id);
+
+    const date = document.createElement("span")
+    date.classList.add("taskDate")
+    date.textContent = task.completed
 
     const nameSpan = document.createElement("span");
     nameSpan.classList.add("task-name");
@@ -184,11 +200,13 @@ async function displayComletedTasks() {
 
     div.appendChild(nameSpan);
     div.appendChild(document.createElement("br"));
-    div.appendChild(creatorSpan);
-    div.appendChild(document.createElement("br"));
     div.appendChild(descrSpan);
     div.appendChild(document.createElement("br"));
+    div.appendChild(creatorSpan);
+    div.appendChild(document.createElement("br"));
     div.appendChild(difficultySpan);
+    div.appendChild(document.createElement("br"));
+    div.appendChild(date);
     completedUtskrift.appendChild(div);
   }
 }
@@ -196,11 +214,6 @@ async function displayComletedTasks() {
 const skjema = document.getElementById("skjema");
 const taskNameEl = document.getElementById("taskName");
 const taskDescriptionEl = document.getElementById("taskDescription");
-
-const nameSelect = document.getElementById("user-selection");
-nameSelect.addEventListener("change", () => {
-  return (currentName = nameSelect.options[nameSelect.selectedIndex].text);
-});
 
 skjema.addEventListener("submit", addTask);
 let taskDifficulty = "1";

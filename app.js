@@ -1,5 +1,6 @@
 const path = require("path");
 const express = require("express");
+const { queryObjects } = require("v8");
 const app = express();
 const sqlite3 = require("sqlite3").verbose();
 let sql;
@@ -29,9 +30,12 @@ app.post("/addTask", (req, res) => {
 
   return res.sendStatus(201);
 });
+
 app.post("/completeTask", (req, res) => {
   const { id } = req.body;
-  db.prepare("UPDATE task SET completed = 0 WHERE id = ?").run(id);
+  const currentTime = new Date().toLocaleString()
+  console.log(currentTime)
+  db.prepare("UPDATE task SET completed = ? WHERE id = ?").run(currentTime, id);
   return res.sendStatus(200);
 });
 
@@ -59,6 +63,7 @@ app.get("/getCompletedTasks", (req, res) => {
   db.all(sql, [], (err, rows) => {
     if (err) return console.error(err.message);
     res.json(rows);
+    console.log(rows)
   });
 });
 
@@ -70,11 +75,19 @@ app.get("/getUsers", (req, res) => {
   });
 });
 
-app.get("/getUserPoints", (req, res) => {
-  sql = "SELECT rank, points FROM user";
-  db.all(sql, [], (err, rows) => {
-    if (err) return console.error(err.message);
-    res.json(rows);
+app.post("/getUserPoints", (req, res) => {
+  const { username } = req.body;
+  if (!username) {
+    return res.json({ error: "username missing" });
+  }
+  const sql = "SELECT rank, points FROM user WHERE username = ?";
+
+  db.get(sql, [username], (err, row) => {
+    if (err) {
+      console.error(err.message);
+      return res.json({ error: "database error" });
+    }
+    res.json(row || { rank: 0, points: 0 });
   });
 });
 
