@@ -11,7 +11,8 @@ body {
 }
 
 #utskrift,
-#completedUtskrift {
+#completedUtskrift,
+.completedUtskrift{
     color: white;
     position: relative;
     padding: 10px 10px 10px 10px;

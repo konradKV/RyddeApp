@@ -50,6 +50,8 @@ app.post("/addPoints", (req, res) => {
   return res.sendStatus(200);
 });
 
+
+
 // get request for getTasks obviously
 app.get("/getTasks", (req, res) => {
   sql = "SELECT * FROM task WHERE completed IS NULL"
@@ -62,7 +64,7 @@ app.get("/getTasks", (req, res) => {
 app.post("/getCompletedTasks", (req, res) => {
   const { username } = req.body
   console.log(username)
-  sql = "SELECT * FROM task WHERE completed IS NOT NULL AND completerUser = ?";
+  sql = "SELECT * FROM task WHERE completed IS NOT NULL AND completerUser = ?"
   db.all(sql, [username], (err, rows) => {
     if (err) return console.error(err.message)
     res.json(rows)
@@ -70,20 +72,35 @@ app.post("/getCompletedTasks", (req, res) => {
   });
 });
 
+
+app.post("/getAllCompletedTasks", (req, res) => {
+  const { username } = req.body;
+
+  sql = "SELECT t.*, u.username AS user_username FROM task t INNER JOIN user u ON t.completerUser = u.username WHERE completed IS NOT NULL AND u.username = ?"
+  db.all(sql, [username], (err, rows) => {
+    if (err) return console.error(err.message)
+    res.json(rows)
+    console.log("hei. jeg heter /getCompletedTasks og jeg fikk dette:", rows)
+  });
+});
+
+
 app.get("/getUsers", (req, res) => {
-  sql = "SELECT username FROM user";
+  sql = "SELECT username, points FROM user ORDER BY points DESC"
   db.all(sql, [], (err, rows) => {
     if (err) return console.error(err.message)
     res.json(rows);
   });
 });
 
+
+
 app.post("/getUserPoints", (req, res) => {
   const { username } = req.body;
   if (!username) {
     return res.json({ error: "username missing" });
   }
-  const sql = "SELECT rank, points FROM user WHERE username = ?";
+  const sql = "SELECT rank, points FROM user WHERE username = ?"
   db.get(sql, [username], (err, row) => {
     if (err) {
       console.error(err.message);

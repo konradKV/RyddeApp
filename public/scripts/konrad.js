@@ -1,4 +1,3 @@
-
 const buttons = document.querySelectorAll(".buttonslayout button");
 const pages = document.querySelectorAll(".page");
 
@@ -26,7 +25,7 @@ function showPage(id, index) {
 }
 
 // Bottom navigation buttons
-buttons[0].addEventListener("click", () => showPage("page-leaderboard", 0));
+buttons[0].addEventListener("click", () => showPage("page-leaderboard", 0),leaderboard());
 buttons[1].addEventListener("click", () => showPage("page-tasks", 1));
 buttons[2].addEventListener("click", () => {
   showPage("page-home", 2);
@@ -37,6 +36,7 @@ buttons[2].addEventListener("click", () => {
 // Internal “+ Oppgave” button
 document
   .getElementById("btn-create")
+
   .addEventListener("click", () => showPage("page-create", null));
 
 //internal til "active-task" path
@@ -81,7 +81,6 @@ async function displayTasks() {
     const div = document.createElement("div");
     div.dataset.taskid = task.id;
     div.setAttribute("id", task.id);
-    div.classList.add("ISAK_HEAD"); // tuff klasse navn ivan - brun
 
     const nameSpan = document.createElement("span");
     nameSpan.classList.add("task-name");
@@ -143,14 +142,16 @@ async function displayPoints() {
   const dataDiv = document.createElement("div");
   // const rankSpan = document.createElement("span");
   const pointSpan = document.createElement("span");
-
   // rankSpan.textContent = "Rank: " + kuledata.rank;
   pointSpan.textContent = "Poeng: " + kuledata.points;
 
   // dataDiv.appendChild(rankSpan);
+    pointsUtskrift.innerHTML = "";
   dataDiv.appendChild(pointSpan);
   pointsUtskrift.appendChild(dataDiv);
+
 }
+
 
 // viser oppgavene som er ferdig
 async function displayComletedTasks() {
@@ -159,7 +160,7 @@ async function displayComletedTasks() {
   const response = await fetch("/getCompletedTasks", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify( { currentName } ),
+    body: JSON.stringify( { username: currentName } ),
   });
 
   const tasks = await response.json();
@@ -267,15 +268,75 @@ async function addPoints(e) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ taskDifficulty, username }),
   });
-}
-displayTasks();
-document.querySelectorAll(".ISAK_HEAD").forEach((el) => {
-  el.addEventListener(
-    "click",
-    () => showPage("page-doing", 3),
-    console.log("Task listened"),
-  );
-  console.log("applied listener");
-});
+};
 
-const finished = document.getElementById("finished");
+displayTasks();
+
+
+async function leaderboard() {
+  const response = await fetch("/getUsers");
+  const users = await response.json();
+  const leaderboard = document.getElementById("leaderboard");
+
+  for (const user of users) {
+    const userPlacement = document.createElement('div');
+    userPlacement.classList.add("completedUtskrift");
+
+    const usernameSpan = document.createElement("span");
+    usernameSpan.classList.add("leaderboard-username");
+    usernameSpan.textContent = user.username;
+
+    const pointSpan = document.createElement("span");
+    pointSpan.classList.add("leaderboard-point");
+    pointSpan.textContent = ": " + user.points + " poeng";
+
+    const userCompleted = document.createElement('div');
+    await displayAllCompletedTasks(userCompleted, user);
+
+    userPlacement.appendChild(usernameSpan);
+    userPlacement.appendChild(pointSpan);
+    userPlacement.appendChild(userCompleted);
+    userCompleted.appendChild(div);
+    leaderboard.appendChild(userPlacement);
+  }
+}
+
+async function displayAllCompletedTasks(userCompleted, user) {
+  const username = user.username;
+  const response = await fetch("/getAllCompletedTasks", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username }),
+  });
+  const tasks = await response.json();
+
+  tasks.forEach(task => {
+    const div = document.createElement("div");
+    div.dataset.taskid = task.id;
+
+    const nameSpan = document.createElement("span");
+    nameSpan.classList.add("task-name");
+    nameSpan.textContent = task.name;
+
+    const difficultySpan = document.createElement("span");
+    difficultySpan.classList.add("task-difficulty");
+    difficultySpan.textContent = "Vanskelighetsgrad " + task.difficulty;
+
+    const descrSpan = document.createElement("span");
+    descrSpan.classList.add("task-description");
+    descrSpan.textContent = task.description;
+
+    const creatorSpan = document.createElement("span");
+    creatorSpan.classList.add("creator-name");
+    creatorSpan.textContent = "Laget av: " + task.creatorUser;
+
+    div.appendChild(nameSpan);
+    div.appendChild(document.createElement("br"));
+    div.appendChild(descrSpan);
+    div.appendChild(document.createElement("br"));
+    div.appendChild(creatorSpan);
+    div.appendChild(document.createElement("br"));
+    div.appendChild(difficultySpan);
+
+  });
+}
