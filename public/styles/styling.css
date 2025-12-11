@@ -11,8 +11,7 @@ body {
 }
 
 #utskrift,
-#completedUtskrift,
-.completedUtskrift{
+#completedUtskrift{
     color: white;
     position: relative;
     padding: 10px 10px 10px 10px;
@@ -287,4 +286,66 @@ body {
     border: 2px solid #000000;
     font-family: "Jua", sans-serif;
     font-size: 12px;
+}
+
+
+#utskrift,
+#leaderboard {
+    color: white;
+    position: relative;
+    padding: 10px 10px 10px 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.leaderboard-user {
+    position: relative;
+    padding: 15px;
+    margin-bottom: 25px;
+    border-radius: 20px;
+    border: 1px dotted #cccccc;
+    border-color: white;
+    width: 275px;
+    background-color: #3d444d;
+    cursor: pointer;
+    min-height: 150px;
+}
+
+.leaderboard-tasks {
+    margin-top: 10px;
+}
+
+.leaderboard-task {
+    position: relative;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background-color: #2a2f36;
+    cursor: pointer;
+}
+
+.leaderboard-username {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.leaderboard-points {
+    color: #4CAF50;
+    margin-left: 5px;
+}
+
+.leaderboard-task-name {
+    font-weight: bold;
+    display: block;
+}
+
+.leaderboard-task-difficulty,
+.leaderboard-task-description,
+.leaderboard-task-creator {
+    display: block;
+    font-size: 0.9em;
+    color: #cccccc;
 }

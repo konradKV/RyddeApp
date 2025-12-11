@@ -277,30 +277,24 @@ async function leaderboard() {
   const response = await fetch("/getUsers");
   const users = await response.json();
   const leaderboard = document.getElementById("leaderboard");
-
   for (const user of users) {
     const userPlacement = document.createElement('div');
-    userPlacement.classList.add("completedUtskrift");
-
+    userPlacement.classList.add("leaderboard-user");
     const usernameSpan = document.createElement("span");
     usernameSpan.classList.add("leaderboard-username");
     usernameSpan.textContent = user.username;
-
     const pointSpan = document.createElement("span");
-    pointSpan.classList.add("leaderboard-point");
+    pointSpan.classList.add("leaderboard-points");
     pointSpan.textContent = ": " + user.points + " poeng";
-
     const userCompleted = document.createElement('div');
+    userCompleted.classList.add("leaderboard-tasks");
     await displayAllCompletedTasks(userCompleted, user);
-
     userPlacement.appendChild(usernameSpan);
     userPlacement.appendChild(pointSpan);
     userPlacement.appendChild(userCompleted);
-    userCompleted.appendChild(div);
     leaderboard.appendChild(userPlacement);
   }
 }
-
 async function displayAllCompletedTasks(userCompleted, user) {
   const username = user.username;
   const response = await fetch("/getAllCompletedTasks", {
@@ -309,27 +303,22 @@ async function displayAllCompletedTasks(userCompleted, user) {
     body: JSON.stringify({ username }),
   });
   const tasks = await response.json();
-
   tasks.forEach(task => {
     const div = document.createElement("div");
+    div.classList.add("leaderboard-task");
     div.dataset.taskid = task.id;
-
     const nameSpan = document.createElement("span");
-    nameSpan.classList.add("task-name");
+    nameSpan.classList.add("leaderboard-task-name");
     nameSpan.textContent = task.name;
-
     const difficultySpan = document.createElement("span");
-    difficultySpan.classList.add("task-difficulty");
+    difficultySpan.classList.add("leaderboard-task-difficulty");
     difficultySpan.textContent = "Vanskelighetsgrad " + task.difficulty;
-
     const descrSpan = document.createElement("span");
-    descrSpan.classList.add("task-description");
+    descrSpan.classList.add("leaderboard-task-description");
     descrSpan.textContent = task.description;
-
     const creatorSpan = document.createElement("span");
-    creatorSpan.classList.add("creator-name");
+    creatorSpan.classList.add("leaderboard-task-creator");
     creatorSpan.textContent = "Laget av: " + task.creatorUser;
-
     div.appendChild(nameSpan);
     div.appendChild(document.createElement("br"));
     div.appendChild(descrSpan);
@@ -337,6 +326,6 @@ async function displayAllCompletedTasks(userCompleted, user) {
     div.appendChild(creatorSpan);
     div.appendChild(document.createElement("br"));
     div.appendChild(difficultySpan);
-
+    userCompleted.appendChild(div);
   });
 }
