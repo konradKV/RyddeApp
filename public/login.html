@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <title>Logg inn</title>
+</head>
+<body>
+  <h1>Logg inn</h1>
+
+  <form action="/login" method="POST">
+    <label for="username">Brukernavn:</label>
+    <input id="username" name="username" type="text" required>
+
+    <label for="password">Passord:</label>
+    <input id="password" name="password" type="password" required>
+
+    <button type="submit">Logg inn</button>
+  </form>
+
+  <!-- Enkel måte å vise feil: sjekk etter ?error=invalid i URL med litt JS om du vil -->
+</body>
+</html>

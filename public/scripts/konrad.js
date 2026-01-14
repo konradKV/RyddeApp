@@ -12,7 +12,6 @@ function showPage(id, index) {
   // Hide all pages
   pages.forEach(
     (p) => (p.style.display = "none"),
-    console.log("Removed class"),
   );
   // Show requested page
   document.getElementById(id).style.display = "block";
@@ -156,7 +155,6 @@ async function displayPoints() {
 // viser oppgavene som er ferdig
 async function displayComletedTasks() {
   completedUtskrift.innerHTML = "";
-  console.log("hei, jeg heter displayComletedTasks() og currentName er", currentName)
   const response = await fetch("/getCompletedTasks", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -164,7 +162,6 @@ async function displayComletedTasks() {
   });
 
   const tasks = await response.json();
-  console.log("comTask", tasks);
 
   for (let task of tasks) {
     const div = document.createElement("div");
@@ -220,8 +217,7 @@ async function addTask(e) {
   e.preventDefault();
   const taskName = taskNameEl.value.trim();
   const taskDescription = taskDescriptionEl.value.trim();
-  console.log(currentName);
-  console.log(taskDifficulty);
+
   const res = await fetch("/addTask", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -237,7 +233,6 @@ async function addTask(e) {
 
 async function completeTask(e) {
   e.preventDefault();
-  console.log("jeg har gjort denne oppgaven!");
 
   const completeTask = await fetch("/completeTask", {
     method: "POST",
@@ -250,7 +245,6 @@ async function completeTask(e) {
 
 //Sletter oppgave
 async function slettOppgave(e) {
-  console.log("sletter oppgave");
   const deleteTask = await fetch("/deleteTask", {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
@@ -260,9 +254,7 @@ async function slettOppgave(e) {
 }
 
 async function addPoints(e) {
-  console.log("legger til poeng");
   const username = currentName;
-  console.log("brukernavn er", username);
   const addPoints = await fetch("/addPoints", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -280,14 +272,18 @@ async function leaderboard() {
   for (const user of users) {
     const userPlacement = document.createElement('div');
     userPlacement.classList.add("leaderboard-user");
+
     const usernameSpan = document.createElement("span");
     usernameSpan.classList.add("leaderboard-username");
     usernameSpan.textContent = user.username;
+
     const pointSpan = document.createElement("span");
     pointSpan.classList.add("leaderboard-points");
     pointSpan.textContent = ": " + user.points + " poeng";
+
     const userCompleted = document.createElement('div');
     userCompleted.classList.add("leaderboard-tasks");
+
     await displayAllCompletedTasks(userCompleted, user);
     userPlacement.appendChild(usernameSpan);
     userPlacement.appendChild(pointSpan);

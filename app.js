@@ -19,6 +19,29 @@ const db = new sqlite3.Database("./ryddeApp", sqlite3.OPEN_READWRITE, (err) => {
   if (err) return console.error(err.message);
 });
 
+// app.use(express.json())
+// app.us(express.urlencoded({ extended: true}))
+
+function logger(req, res, next){
+  console.log(req.method + "" + req.url);
+  next();
+}
+app.use(logger)
+
+//login greier
+
+app.post("/login", (req, res) =>{
+  let username = req.body.username
+  var password = req.body.password
+  return res.sendFile(path.join(__dirname, "public", "index.html"))
+})
+
+
+function requireAuth(req, res, next){
+  let isLoggedIn = !!req.session.user;
+
+}
+
 app.post("/addTask", (req, res) => {
   let { taskName, currentName, taskDescription, taskDifficulty } = req.body;
   taskName = taskName.toString().trim();
@@ -34,15 +57,14 @@ app.post("/addTask", (req, res) => {
 app.post("/completeTask", (req, res) => {
   const { id, currentName } = req.body;
   const currentTime = new Date().toLocaleString()
-  console.log(currentTime)
+  // console.log(currentTime)
   db.prepare("UPDATE task SET completed = ?, completerUser = ? WHERE id = ?").run(currentTime, currentName, id);
-  console.log("hei, jeg heter /completeTask og jeg fikk", currentTime, id, currentName);
+ // console.log("hei, jeg heter /completeTask og jeg fikk", currentTime, id, currentName);
   return res.sendStatus(200);
 });
 
 app.post("/addPoints", (req, res) => {
   const { taskDifficulty, username } = req.body;
-  console.log("points");
   db.prepare("UPDATE user SET points = points + ? WHERE username = ?").run(
     taskDifficulty,
     username,
@@ -63,12 +85,12 @@ app.get("/getTasks", (req, res) => {
 
 app.post("/getCompletedTasks", (req, res) => {
   const { username } = req.body
-  console.log(username)
+  // console.log(username)
   sql = "SELECT * FROM task WHERE completed IS NOT NULL AND completerUser = ?"
   db.all(sql, [username], (err, rows) => {
     if (err) return console.error(err.message)
     res.json(rows)
-    console.log("hei. jeg heter /getCompletedTasks og jeg fikk dette:", rows)
+  //  console.log("hei. jeg heter /getCompletedTasks og jeg fikk dette:", rows)
   });
 });
 
@@ -80,7 +102,7 @@ app.post("/getAllCompletedTasks", (req, res) => {
   db.all(sql, [username], (err, rows) => {
     if (err) return console.error(err.message)
     res.json(rows)
-    console.log("hei. jeg heter /getCompletedTasks og jeg fikk dette:", rows)
+   // console.log("hei. jeg heter /getCompletedTasks og jeg fikk dette:", rows)
   });
 });
 
@@ -120,6 +142,8 @@ app.delete("/deleteTask", (req, res) => {
     return res.status(500).json({ error: "kunne ikke slette melding" });
   }
 });
+
+
 
 // server listener på port 6767 (http://localhost:6767) - konrad
 const port = "6767";
