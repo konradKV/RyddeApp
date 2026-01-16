@@ -1,151 +1,227 @@
 const path = require("path");
 const express = require("express");
-const { queryObjects } = require("v8");
 const app = express();
-const sqlite3 = require("sqlite3").verbose();
-let sql;
-app.use(express.static("public"));
-// Legg til body-parsing for skjema JSON
-app.use(express.urlencoded({ extended: false }));
+const Database = require("better-sqlite3");
+const bcrypt = require("bcrypt")
+const session = require("express-session")
+app.use(express.static(path.join(__dirname, "public"), {  index: false}))
+// DB (sync, no callback)
+const db = new Database("./ryddeApp");
+
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// grooooooooooooooooot
-app.get("/", (req, res) => {
+// middleware: session
+app.use(
+  session({
+    secret: "hemmelig-nok-til-lab",
+    resave: false,
+    saveUninitialized: false,
+    cookie: { httpOnly: true, sameSite: "lax" },
+  })
+);
+
+
+// logger
+function logger(req, res, next) {
+  console.log(req.method + " " + req.url);
+  next();
+}
+app.use(logger);
+
+
+// ---------- LOGIN ----------
+
+function getUser(username) {
+  const stmt = db.prepare(
+    "SELECT id, username, password FROM user WHERE username = ?"
+  );
+  return stmt.get(username);
+}
+
+app.post("/login", (req, res) => {
+  const { username, password } = req.body;
+  const user = getUser(username);
+
+  if (!user) {
+    return res.status(401).send("Invalid username or password");
+  }
+  var ok = bcrypt.compareSync(password, user.password);
+  if (!ok){
+   return res.sendFile(path.join(__dirname, "public", "login.html"))
+  }
+  req.session.user = { id: user.id, username: user.username }
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// database :solbriller emotikon:
-const db = new sqlite3.Database("./ryddeApp", sqlite3.OPEN_READWRITE, (err) => {
-  if (err) return console.error(err.message);
-});
-
-// app.use(express.json())
-// app.us(express.urlencoded({ extended: true}))
-
-function logger(req, res, next){
-  console.log(req.method + "" + req.url);
-  next();
-}
-app.use(logger)
-
-//login greier
-
-app.post("/login", (req, res) =>{
-  let username = req.body.username
-  var password = req.body.password
-  return res.sendFile(path.join(__dirname, "public", "index.html"))
-})
 
 
 function requireAuth(req, res, next){
-  let isLoggedIn = !!req.session.user;
-
+  var isLoggedIn = Boolean(req.session?.user)
+  if (!isLoggedIn){
+    console.log("1")
+    return res.sendFile(path.join(__dirname, "public", "login.html"))
+  }
+  next()
 }
 
+
+app.get("/", requireAuth, (req, res) =>{
+  res.sendFile(path.join(__dirname, "public", "index.html"))
+})
+
+// ---------- TASKS ----------
+
 app.post("/addTask", (req, res) => {
-  let { taskName, currentName, taskDescription, taskDifficulty } = req.body;
-  taskName = taskName.toString().trim();
-  taskDescription = taskDescription.toString().trim();
+  try {
+    let { taskName, currentName, taskDescription, taskDifficulty } = req.body;
 
-  db.prepare(
-    "INSERT INTO task (name, creatorUser, description, difficulty) VALUES (?, ?, ?, ?)",
-  ).run(taskName, currentName, taskDescription, taskDifficulty);
+    taskName = taskName.toString().trim();
+    taskDescription = taskDescription.toString().trim();
 
-  return res.sendStatus(201);
+    db.prepare(
+      "INSERT INTO task (name, creatorUser, description, difficulty) VALUES (?, ?, ?, ?)"
+    ).run(taskName, currentName, taskDescription, taskDifficulty);
+
+    res.sendStatus(201);
+  } catch (err) {
+    console.error(err);
+    res.sendStatus(500);
+  }
 });
 
 app.post("/completeTask", (req, res) => {
-  const { id, currentName } = req.body;
-  const currentTime = new Date().toLocaleString()
-  // console.log(currentTime)
-  db.prepare("UPDATE task SET completed = ?, completerUser = ? WHERE id = ?").run(currentTime, currentName, id);
- // console.log("hei, jeg heter /completeTask og jeg fikk", currentTime, id, currentName);
-  return res.sendStatus(200);
+  try {
+    const { id, currentName } = req.body;
+    const currentTime = new Date().toLocaleString();
+
+    db.prepare(
+      "UPDATE task SET completed = ?, completerUser = ? WHERE id = ?"
+    ).run(currentTime, currentName, id);
+
+    res.sendStatus(200);
+  } catch (err) {
+    console.error(err);
+    res.sendStatus(500);
+  }
 });
 
 app.post("/addPoints", (req, res) => {
-  const { taskDifficulty, username } = req.body;
-  db.prepare("UPDATE user SET points = points + ? WHERE username = ?").run(
-    taskDifficulty,
-    username,
-  );
-  return res.sendStatus(200);
+  try {
+    const { taskDifficulty, username } = req.body;
+
+    db.prepare(
+      "UPDATE user SET points = points + ? WHERE username = ?"
+    ).run(taskDifficulty, username);
+
+    res.sendStatus(200);
+  } catch (err) {
+    console.error(err);
+    res.sendStatus(500);
+  }
 });
 
 
 
-// get request for getTasks obviously
+// ---------- GET TASKS ----------
+
 app.get("/getTasks", (req, res) => {
-  sql = "SELECT * FROM task WHERE completed IS NULL"
-  db.all(sql, [], (err, rows) => {
-    if (err) return console.error(err.message);
+  try {
+    const rows = db
+      .prepare("SELECT * FROM task WHERE completed IS NULL")
+      .all();
     res.json(rows);
-  });
+  } catch (err) {
+    console.error(err);
+    res.sendStatus(500);
+  }
 });
 
 app.post("/getCompletedTasks", (req, res) => {
-  const { username } = req.body
-  // console.log(username)
-  sql = "SELECT * FROM task WHERE completed IS NOT NULL AND completerUser = ?"
-  db.all(sql, [username], (err, rows) => {
-    if (err) return console.error(err.message)
-    res.json(rows)
-  //  console.log("hei. jeg heter /getCompletedTasks og jeg fikk dette:", rows)
-  });
-});
+  try {
+    const { username } = req.body;
 
+    const rows = db
+      .prepare(
+        "SELECT * FROM task WHERE completed IS NOT NULL AND completerUser = ?"
+      )
+      .all(username);
+
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.sendStatus(500);
+  }
+});
 
 app.post("/getAllCompletedTasks", (req, res) => {
-  const { username } = req.body;
+  try {
+    const { username } = req.body;
 
-  sql = "SELECT t.*, u.username AS user_username FROM task t INNER JOIN user u ON t.completerUser = u.username WHERE completed IS NOT NULL AND u.username = ?"
-  db.all(sql, [username], (err, rows) => {
-    if (err) return console.error(err.message)
-    res.json(rows)
-   // console.log("hei. jeg heter /getCompletedTasks og jeg fikk dette:", rows)
-  });
-});
+    const rows = db
+      .prepare(`
+        SELECT t.*, u.username AS user_username
+        FROM task t
+        INNER JOIN user u ON t.completerUser = u.username
+        WHERE t.completed IS NOT NULL AND u.username = ?
+      `)
+      .all(username);
 
-
-app.get("/getUsers", (req, res) => {
-  sql = "SELECT username, points FROM user ORDER BY points DESC"
-  db.all(sql, [], (err, rows) => {
-    if (err) return console.error(err.message)
     res.json(rows);
-  });
+  } catch (err) {
+    console.error(err);
+    res.sendStatus(500);
+  }
 });
 
+// ---------- USERS ----------
 
+app.get("/getUsers", requireAuth, (req, res) => {
+  try {
+    const rows = db
+      .prepare("SELECT username, points FROM user ORDER BY points DESC")
+      .all();
+
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.sendStatus(500);
+  }
+});
 
 app.post("/getUserPoints", (req, res) => {
-  const { username } = req.body;
-  if (!username) {
-    return res.json({ error: "username missing" });
-  }
-  const sql = "SELECT rank, points FROM user WHERE username = ?"
-  db.get(sql, [username], (err, row) => {
-    if (err) {
-      console.error(err.message);
-      return res.json({ error: "database error" });
+  try {
+    const { username } = req.body;
+    if (!username) {
+      return res.json({ error: "username missing" });
     }
+
+    const row = db
+      .prepare("SELECT rank, points FROM user WHERE username = ?")
+      .get(username);
+
     res.json(row || { rank: 0, points: 0 });
-  });
+  } catch (err) {
+    console.error(err);
+    res.sendStatus(500);
+  }
 });
+
+// ---------- DELETE ----------
 
 app.delete("/deleteTask", (req, res) => {
   try {
     const { id } = req.body;
     db.prepare("DELETE FROM task WHERE id = ?").run(id);
-    return res.sendStatus(200);
+    res.sendStatus(200);
   } catch (err) {
-    console.log("feil ved sletting av melding:", err);
-    return res.status(500).json({ error: "kunne ikke slette melding" });
+    console.error("feil ved sletting:", err);
+    res.status(500).json({ error: "kunne ikke slette melding" });
   }
 });
 
+// ---------- SERVER ----------
 
-
-// server listener på port 6767 (http://localhost:6767) - konrad
-const port = "6767";
-app.listen(6767);
+const port = 6767;
+app.listen(port);
 console.log("yo, jeg kjører på http://localhost:" + port);
